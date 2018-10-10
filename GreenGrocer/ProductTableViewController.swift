@@ -73,4 +73,52 @@ class ProductTableViewController: UITableViewController, DataStoreOwner {
       destVC.product = dataStore?.products[selectedRow]
     }
   }
+  
+  override func tableView(
+    _ tableView: UITableView,
+    trailingSwipeActionsConfigurationForRowAt
+    indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    // 1
+    guard let product = dataStore?.products[indexPath.row]
+      else { return nil }
+    // 2
+    let addAction = UIContextualAction(style: .normal,
+                                       title: "Add")
+    { [weak self] (action, view, completionHandler) in // 3
+      guard let `self` = self else {
+        completionHandler(false)
+        return
+      }
+      self.listController?.addItem(named: product.name)
+      completionHandler(true)
+    }
+    addAction.backgroundColor = UIColor(named: ggGreen)
+    // 4
+    let configuration =
+      UISwipeActionsConfiguration(actions: [addAction])
+    return configuration
+  }
+  
+  override func tableView(
+    _ tableView: UITableView,
+    leadingSwipeActionsConfigurationForRowAt
+    indexPath: IndexPath) -> UISwipeActionsConfiguration?
+  {
+    guard let product = dataStore?.products[indexPath.row]
+      else { return nil }
+    let copyAction = UIContextualAction(style: .normal,
+                                        title: "Copy")
+    { (action, view, completionHandler) in
+      let data =
+        NSKeyedArchiver.archivedData(withRootObject: product)
+      UIPasteboard.general
+        .setData(data, forPasteboardType: Product.productTypeId)
+      completionHandler(true)
+    }
+    copyAction.backgroundColor = UIColor(named: ggDarkGreen)
+    let configuration =
+      UISwipeActionsConfiguration(actions: [copyAction])
+    return configuration
+  }
+  
 }

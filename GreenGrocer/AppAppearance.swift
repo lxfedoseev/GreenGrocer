@@ -30,15 +30,8 @@
 
 import UIKit
 
-extension UIColor {
-  static var ggGreen : UIColor {
-    return UIColor(red: 127/255.0, green: 148/255.0, blue: 49/255.0, alpha: 1.0)
-  }
-  
-  static var ggDarkGreen : UIColor {
-    return UIColor(red: 48/255.0, green: 56/255.0, blue: 19/255.0, alpha: 1.0)
-  }
-}
+let ggDarkGreen = "ggDarkGreen"
+let ggGreen = "ggGreen"
 
 func applyAppAppearance() {
   styleNavBar()
@@ -49,7 +42,7 @@ func applyAppAppearance() {
 
 private func styleNavBar() {
   let appearanceProxy = UINavigationBar.appearance()
-  appearanceProxy.barTintColor = UIColor.ggDarkGreen
+  appearanceProxy.barTintColor = UIColor(named: ggDarkGreen)
   
   appearanceProxy.titleTextAttributes = [
     NSAttributedStringKey.foregroundColor: UIColor.white,
@@ -62,16 +55,16 @@ private func styleNavBar() {
 
 private func styleTabBar() {
   let appearanceProxy = UITabBar.appearance()
-  appearanceProxy.barTintColor = UIColor.ggDarkGreen
+  appearanceProxy.barTintColor = UIColor(named: ggDarkGreen)
 }
 
 private func styleTintColor() {
   let appearanceProxy = UIView.appearance()
-  appearanceProxy.tintColor = UIColor.ggGreen
+  appearanceProxy.tintColor = UIColor(named: ggGreen)
 }
 
 private func styleTabBarItem() {
   let appearanceProxy = UITabBarItem.appearance()
   appearanceProxy.setTitleTextAttributes([NSAttributedStringKey.foregroundColor : UIColor.white], for: .selected)
-  appearanceProxy.setTitleTextAttributes([NSAttributedStringKey.foregroundColor : UIColor.ggGreen], for: UIControlState())
+  appearanceProxy.setTitleTextAttributes([NSAttributedStringKey.foregroundColor : UIColor(named: ggGreen)!], for: UIControlState())
 }

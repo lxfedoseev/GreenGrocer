@@ -41,6 +41,11 @@ class AddItemViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    pasteConfiguration =
+      UIPasteConfiguration(acceptableTypeIdentifiers:
+        [Product.productTypeId])
+    
     setupGestureRecognizer()
     configureAccessibility()
     
@@ -48,6 +53,21 @@ class AddItemViewController: UIViewController {
     itemTextField.becomeFirstResponder()
   }
   
+  override func paste(itemProviders: [NSItemProvider]) {
+    // 1
+    itemProviders.forEach {
+      $0.loadObject(ofClass: Product.self) { object, _ in
+        guard let product = object as? Product
+          else { return }
+        let productImage = UIImage(named: product.photoName)
+        // 2
+        DispatchQueue.main.async { [weak self] in
+          guard let `self` = self else { return }
+          self.itemTextField.text = product.name
+          self.productImageView.image = productImage
+        } }
+    }
+  }
   func setupGestureRecognizer() {
     gestureManager = MenuGestureController(view: view)
     if let gestureManager = gestureManager {
@@ -57,10 +77,16 @@ class AddItemViewController: UIViewController {
   }
   
   func configureAccessibility() {
-    addButton.accessibilityLabel = "Add"
+    let addLabel = NSAttributedString(string:
+      "Add ", attributes: [NSAttributedStringKey(
+        UIAccessibilitySpeechAttributePitch): 1.5])
+    addButton.accessibilityAttributedLabel = addLabel
     addButton.accessibilityHint = "Add item to shopping list"
     
-    cancelButton.accessibilityLabel = "Cancel"
+    let cancelLabel = NSAttributedString(string:
+      "Cancel ", attributes: [NSAttributedStringKey(
+        UIAccessibilitySpeechAttributePitch): 0.5])
+    cancelButton.accessibilityAttributedLabel = cancelLabel
     cancelButton.accessibilityHint = "Close without adding the item"
   }
   

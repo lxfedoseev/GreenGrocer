@@ -44,6 +44,9 @@ class ShoppingListViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    tableView.dragDelegate = self
+    tableView.dragInteractionEnabled = true
+    tableView.dropDelegate = self
     
     configureAccessibility()
   }
@@ -132,3 +135,66 @@ extension ShoppingListViewController: ListControllerProtocol {
   }
 }
 
+// 1
+extension ShoppingListViewController: UITableViewDragDelegate {
+  public func tableView(
+    _ tableView: UITableView,
+    itemsForBeginning session: UIDragSession,
+    at indexPath: IndexPath) -> [UIDragItem]
+  {
+    // 2
+    let listItem = shoppingList[indexPath.row]
+    // 3
+    let provider = NSItemProvider(object: listItem)
+    let dragItem = UIDragItem(itemProvider: provider)
+    return [dragItem]
+  }
+}
+
+extension ShoppingListViewController: UITableViewDropDelegate {
+  func tableView(_ tableView: UITableView,
+    performDropWith
+    coordinator: UITableViewDropCoordinator) {
+    
+    // 1
+    guard let destinationIndexPath
+      = coordinator.destinationIndexPath
+      else { return }
+    // 2
+    DispatchQueue.main.async { [weak self] in
+      tableView.performBatchUpdates(
+        { coordinator.items.forEach { [weak self] (item) in
+          guard let sourceIndexPath = item.sourceIndexPath,
+            let `self` = self
+            else { return }
+          let row = self.shoppingList
+            .remove(at: sourceIndexPath.row)
+          self.shoppingList
+            .insert(row, at: destinationIndexPath.row)
+          tableView.moveRow(at: sourceIndexPath,
+                            to: destinationIndexPath)
+          }
+      }, completion: nil)
+    }
+  }
+  
+  // 1
+  func tableView(
+    _ tableView: UITableView,
+    canHandle session: UIDropSession) -> Bool
+  {
+    return session.canLoadObjects(ofClass: ListItem.self)
+  }
+  
+  // 2
+  func tableView(
+    _ tableView: UITableView,
+    dropSessionDidUpdate session: UIDropSession,
+    withDestinationIndexPath destinationIndexPath: IndexPath?)
+    -> UITableViewDropProposal
+  {
+    return UITableViewDropProposal(
+      operation: .move,
+      intent: .insertAtDestinationIndexPath)
+  }
+}
